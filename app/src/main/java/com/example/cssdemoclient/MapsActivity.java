@@ -58,7 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button btn_book;
     private EditText request;
     private TextView price;
-    private String charge = "50.000Đ";
+    private String charge = "40000đ";
 
     private Client mClient = new Client();
     private Partner mPartner = new Partner();
@@ -288,10 +288,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         if(dis/10 > 3){
                             int gia = (int) (dis/10 - 3) * 4000 + 40000;
-                            charge = (gia+"").substring(0,2)+"."+(gia+"").substring(2)+"đ";
-                            if (check){
-                                clientDb.child(mClient.getUsername()).child("price").setValue(charge);
-                            }
+//                            StringBuilder giaUocTinh = new StringBuilder(gia+"");
+//                            giaUocTinh = giaUocTinh.reverse();
+//                            giaUocTinh = giaUocTinh.
+                            charge = (gia+"")+"đ";
+                        }
+                        if (check){
+                            clientDb.child(mClient.getUsername()).child("price").setValue(charge);
                         }
                     }
 
