@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_margin="5dp"
+        android:layout_margin="16dp"
         android:background="@drawable/border_radius"
         android:layout_gravity="bottom">
 
@@ -32,23 +32,12 @@
             android:layout_marginTop="15dp">
 
             <Button
-                android:id="@+id/book"
+                android:id="@+id/btn_book"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:background="@drawable/border_radius_book"
+                android:background="@drawable/active_btn"
+                android:stateListAnimator="@null"
                 android:text="Đặt dịch vụ"
-                android:textColor="@android:color/white" />
-
-            <Button
-                android:id="@+id/cancel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_weight="1"
-                android:background="@drawable/border_radius_cancel"
-                android:text="Hủy dịch vụ"
                 android:textColor="@android:color/white" />
         </LinearLayout>
     </LinearLayout>

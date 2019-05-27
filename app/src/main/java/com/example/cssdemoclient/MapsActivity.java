@@ -16,7 +16,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.example.cssdemoclient.object.Client;
@@ -61,6 +63,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mapFragment.getMapAsync(this);
+
+        final Button bookButton = findViewById(R.id.btn_book);
+        bookButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bookButton.setBackgroundResource(R.drawable.offline_btn);
+                bookButton.setText("Hủy dịch vụ");
+                bookButton.setTextColor(0xFF000000);
+            }
+        });
     }
 
 
