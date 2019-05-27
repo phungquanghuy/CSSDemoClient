@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cssdemoclient.object.Client;
+import com.example.cssdemoclient.object.Partner;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -40,6 +41,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -59,6 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String charge = "50.000Đ";
 
     private Client mClient = new Client();
+    private Partner mPartner = new Partner();
     private boolean check = true;
 
     @Override
@@ -256,6 +259,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mClient = dataSnapshot.getValue(Client.class);
                 btnStatus();
+                price.setText("Giá ước tính: "+mClient.getPrice());
                 if (check){
                     if ( !mClient.getStatus().contains("waiting")
                             && !mClient.getStatus().equals("busy")
@@ -272,6 +276,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     @Override
                     public void onClick(View v) {
                         toggleBtn();
+                    }
+                });
+                partnerDb.child(mPartner.getUsername()).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        mPartner = dataSnapshot.getValue(Partner.class);
+                        LatLng to = new LatLng(Double.valueOf(mClient.getLat()),Double.valueOf(mClient.getLng()));
+                        LatLng from = new LatLng(Double.valueOf(mPartner.getLat()),Double.valueOf(mPartner.getLng()));
+                        double dis = Math.round(SphericalUtil.computeDistanceBetween(from, to)/100);
+
+                        if(dis/10 > 3){
+                            int gia = (int) (dis/10 - 3) * 4000 + 40000;
+                            charge = (gia+"").substring(0,2)+"."+(gia+"").substring(2)+"đ";
+                            if (check){
+                                clientDb.child(mClient.getUsername()).child("price").setValue(charge);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
                     }
                 });
             }
