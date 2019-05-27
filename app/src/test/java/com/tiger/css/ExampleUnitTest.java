@@ -1,4 +1,4 @@
-package com.example.cssdemoclient;
+package com.tiger.css;
 
 import org.junit.Test;
 

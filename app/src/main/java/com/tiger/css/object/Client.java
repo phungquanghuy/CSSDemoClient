@@ -1,11 +1,10 @@
-package com.example.cssdemoclient.object;
+package com.tiger.css.object;
 
-public class Partner {
-    private String url, username, name, phone, email, info, status, clientUsn;
-    private String lat, lng;
+public class Client {
+    private String url, username, name, phone, email, info, status, request, address, lat, lng, price;
 
-    public Partner() {
-        this.username = "supportPartner1";
+    public Client() {
+        this.username = "client1";
     }
 
     public String getLat() {
@@ -24,12 +23,12 @@ public class Partner {
         this.lng = lng;
     }
 
-    public String getClientUsn() {
-        return clientUsn;
+    public String getPrice() {
+        return price;
     }
 
-    public void setClientUsn(String clientUsn) {
-        this.clientUsn = clientUsn;
+    public void setPrice(String price) {
+        this.price = price;
     }
 
     public String getUrl() {
@@ -87,4 +86,21 @@ public class Partner {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getRequest() {
+        return request;
+    }
+
+    public void setRequest(String request) {
+        this.request = request;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
 }

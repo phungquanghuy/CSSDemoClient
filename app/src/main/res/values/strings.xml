@@ -1,4 +1,12 @@
 <resources>
-    <string name="app_name">CSSDemoClient</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name">css</string>
+    <string name="name">Nhập tên</string>
+    <string name="email">Nhập email</string>
+    <string name="action_save">Lưu</string>
+    <string name="active">Bật</string>
+    <string name="accept">Nhận</string>
+    <string name="cancel">Hủy</string>
+    <string name="call">Gọi điện</string>
+    <string name="finish">Kết thúc</string>
+    <string name="api_map_key">AIzaSyB7C0IAuO-rd-wNSkiC9M7-fLg-sjwwBBk</string>
 </resources>
