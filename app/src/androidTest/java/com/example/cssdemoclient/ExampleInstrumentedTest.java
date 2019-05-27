@@ -1,4 +1,4 @@
-package com.tiger.css;
+package com.example.cssdemoclient;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.tiger.css", appContext.getPackageName());
+        assertEquals("com.example.cssdemoclient", appContext.getPackageName());
     }
 }

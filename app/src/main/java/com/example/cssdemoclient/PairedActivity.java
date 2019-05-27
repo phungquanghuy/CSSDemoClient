@@ -1,17 +1,20 @@
-package com.tiger.css;
+package com.example.cssdemoclient;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -20,96 +23,74 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.cssdemoclient.object.Client;
+import com.example.cssdemoclient.object.Partner;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.maps.DirectionsApi;
-import com.google.maps.GeoApiContext;
-import com.google.maps.android.PolyUtil;
-import com.google.maps.errors.ApiException;
-import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.TravelMode;
 import com.squareup.picasso.Picasso;
-import com.tiger.css.object.Client;
-import com.tiger.css.object.Partner;
-
-import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Locale;
 
-public class ThirdActivity extends AppCompatActivity implements LocationListener,
-        OnMapReadyCallback{
+public class PairedActivity extends AppCompatActivity implements LocationListener,
+        OnMapReadyCallback {
 
-    private Button call, finish;
+    private Button call;
     private Client mClient = new Client();
     private Partner mPartner = new Partner();
     private ImageView partnerAvt, clientAvt;
-    private TextView clientName, address, price, title;
+    private TextView partnerName, address, price, title;
     private Boolean check = true;
-    private static final int overview = 0;
+    private Marker maker[] = new Marker[2];
+
     //Khai báo cho Map
     private GoogleMap myMap;
     private ProgressDialog myProgress;
     private SupportMapFragment mapFragment;
     private LocationManager locationManager;
     private int REQUEST_GPS = 100;
-    private MarkerOptions option1;
-    private ImageView direction;
-
 
     private DatabaseReference clientDb = FirebaseDatabase.getInstance().getReference("Client");
     private DatabaseReference partnerDb = FirebaseDatabase.getInstance().getReference("Partner");
 
-    @SuppressLint("StaticFieldLeak")
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_third);
+        setContentView(R.layout.activity_paired);
 
         this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setCustomView(R.layout.custom_actionbar);
 
         call = findViewById(R.id.call);
-        finish = findViewById(R.id.finish);
-        partnerAvt = findViewById(R.id.avatar);
-        clientAvt = findViewById(R.id.clientAvt);
-        clientName = findViewById(R.id.clientName);
+        clientAvt = findViewById(R.id.avatar);
+        partnerAvt = findViewById(R.id.partnerAvt);
+        partnerName = findViewById(R.id.partnerName);
         address = findViewById(R.id.address);
         price = findViewById(R.id.price);
         title = findViewById(R.id.title);
-        direction = findViewById(R.id.direction);
 
+        title.setText("Chờ hỗ trợ");
 
-        // Tạo Progress Bar
-        myProgress = new ProgressDialog(this);
-        myProgress.setTitle("Bản đồ đang tải ...");
-        myProgress.setMessage("Vui lòng chờ...");
-        myProgress.setCancelable(true);
-
-        // Hiển thị Progress Bar
-//        myProgress.show();
-
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.thirdMap);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.pairMap);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         Location location = locateGPS();
 
@@ -117,26 +98,42 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
 
         getInfo();
 
-        finish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                partnerDb.child(mPartner.getUsername()).child("status").setValue("actived");
-            }
-        });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
             case 100:
-                if (grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length>0 && grantResults[0]== PackageManager.PERMISSION_GRANTED){
                     locateGPS();
                 }
                 return;
         }
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
 
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(intent);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onMapReady(GoogleMap googleMap) {
         myMap = googleMap;
@@ -149,11 +146,14 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
         });
         LatLng latLng = new LatLng(locateGPS().getLatitude(),locateGPS().getLongitude());
         if (checkPermission()){
-            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
+            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
         }
-
+        MarkerOptions option = new MarkerOptions();
+        option.position(latLng);
+        maker[0] = myMap.addMarker(option);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean checkPermission(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{
@@ -164,6 +164,7 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private Location locateGPS(){
         Location localGpsLocation = null;
         if (checkPermission()){
@@ -177,6 +178,7 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
         return localGpsLocation;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void setupGoogleMapScreenSettings(GoogleMap mMap) {
         mMap.setBuildingsEnabled(true);
         mMap.setIndoorEnabled(true);
@@ -194,60 +196,64 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
         }
     }
 
+    private String locationName(LatLng latLng) throws IOException {
+        Geocoder geocode = new Geocoder(PairedActivity.this, Locale.getDefault());
+        List<Address> listAddress = geocode.getFromLocation(latLng.latitude, latLng.longitude, 100);
+        Address address = listAddress.get(0);
+
+        return address.getAddressLine(0);
+    }
+
     protected void getInfo(){
-        partnerDb.child(mPartner.getUsername()).addValueEventListener(new ValueEventListener() {
+        clientDb.child(mClient.getUsername()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mPartner = dataSnapshot.getValue(Partner.class);
-                Picasso.get().load(mPartner.getUrl()).into(partnerAvt);
-
-                if(mPartner.getStatus().equals("offline")
-                        || mPartner.getStatus().equals("actived")
-                ){
-                    if(check){
-                        check = false;
-                        clientDb.child(mPartner.getClientUsn()).child("status").setValue("available");
-                        Intent intent = new Intent(ThirdActivity.this,FirstActivity.class);
-                        ThirdActivity.this.startActivity(intent);
-                        finish();
-                    }
+                mClient = dataSnapshot.getValue(Client.class);
+                price.setText("Giá: "+mClient.getPrice());
+                Picasso.get().load(mClient.getUrl()).into(clientAvt);
+                if (check && mClient.getStatus().equals("available")){
+                    check = false;
+                    Intent intent = new Intent(PairedActivity.this, MapsActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
-                clientDb.child(mPartner.getClientUsn()).addValueEventListener(new ValueEventListener() {
+                partnerDb.child(mClient.getStatus()).addValueEventListener(new ValueEventListener() {
                     @SuppressLint("SetTextI18n")
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        mClient = dataSnapshot.getValue(Client.class);
-                        Picasso.get().load(mClient.getUrl()).into(clientAvt);
-                        address.setText("Địa chỉ: "+mClient.getAddress());
-                        clientName.setText(mClient.getName());
-                        price.setText("Giá : "+mClient.getPrice());
-                        title.setText("Mã khách hàng: CSS-"+ mClient.getUsername());
                         if (check){
+                            mPartner = dataSnapshot.getValue(Partner.class);
+                            Picasso.get().load(mPartner.getUrl()).into(partnerAvt);
+                            partnerName.setText("Hỗ trợ viên: "+mPartner.getName()+"\n"+mPartner.getInfo());
+                            LatLng latLng = new LatLng(Double.valueOf(mPartner.getLat()),Double.valueOf(mPartner.getLng()));
+                            try {
+                                address.setText("Địa chỉ: "+locationName(latLng));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            MarkerOptions option = new MarkerOptions();
+                            option.position(latLng);
+                            option.icon(BitmapDescriptorFactory.fromResource(R.mipmap.partner));
+                            if (maker[1] != null){
+                                maker[1].remove();
+                            }
+                            maker[1] = myMap.addMarker(option);
                             call.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     check = false;
-                                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", mClient.getPhone(), null));
+                                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", mPartner.getPhone(), null));
                                     startActivity(intent);
                                 }
                             });
-                        }
-                        LatLng latLng2 = new LatLng(Double.valueOf(mClient.getLat()),Double.valueOf(mClient.getLng()));
-                        MarkerOptions option=new MarkerOptions();
-                        option.position(latLng2);
-                        option.alpha(0.8f);
-                        Marker maker2 = myMap.addMarker(option);
-                        if (check){
-                            direction.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Uri gmmIntentUri = Uri.parse("google.navigation:q="+mClient.getAddress());
-                                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                                    mapIntent.setPackage("com.google.android.apps.maps");
-                                    check = false;
-                                    startActivity(mapIntent);
-                                }
-                            });
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                            for (Marker marker : maker) {
+                                builder.include(marker.getPosition());
+                            }
+                            LatLngBounds bounds = builder.build();
+                            int padding = 160; // offset from edges of the map in pixels
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                            myMap.moveCamera(cu);
                         }
                     }
 
@@ -263,31 +269,5 @@ public class ThirdActivity extends AppCompatActivity implements LocationListener
 
             }
         });
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        locateGPS();
-        if(check){
-            partnerDb.child(mPartner.getUsername()).child("lat").setValue(location.getLatitude()+"");
-            partnerDb.child(mPartner.getUsername()).child("lng").setValue(location.getLongitude()+"");
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        startActivity(intent);
     }
 }
