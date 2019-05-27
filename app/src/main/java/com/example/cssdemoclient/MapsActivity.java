@@ -16,8 +16,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.cssdemoclient.object.Client;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -45,7 +50,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap myMap;
     private SupportMapFragment mapFragment;
     private LocationManager locationManager;
-    private DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("Client");
+    private DatabaseReference clientDb = FirebaseDatabase.getInstance().getReference("Client");
+    private DatabaseReference partnerDb = FirebaseDatabase.getInstance().getReference("Partner");
+
+    private Button btn_book;
+    private EditText request;
+    private TextView price;
+    private String charge = "50.000Đ";
 
     private Client mClient = new Client();
     private boolean check = true;
@@ -61,6 +72,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mapFragment.getMapAsync(this);
+
+        btn_book = findViewById(R.id.btn_book);
+        request = findViewById(R.id.request);
+        price = findViewById(R.id.price);
+
+
+        getInfo();
+
     }
 
 
@@ -169,18 +188,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onLocationChanged(Location location) {
-        locateGPS();
-        if (check){
-            LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
-            mDatabaseReference.child(mClient.getUsername()).child("lat").setValue(location.getLatitude()+"");
-            mDatabaseReference.child(mClient.getUsername()).child("lng").setValue(location.getLongitude()+"");
-            try {
-                mDatabaseReference.child(mClient.getUsername()).child("address").setValue(locationName(latLng));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
-        }
     }
 
     @Override
@@ -199,11 +207,73 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
+    private void btnStatus(){
+        if(mClient.getStatus().equals("available")){
+            btn_book.setBackgroundResource(R.drawable.active_btn);
+            btn_book.setTextColor(0xFFFFFFFF);
+            btn_book.setText("Đặt dịch vụ");
+        }
+        else{
+            btn_book.setBackgroundResource(R.drawable.offline_btn);
+            btn_book.setTextColor(0xFF000000);
+            btn_book.setText("Hủy dịch vụ");
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    protected void toggleBtn(){
+        if(mClient.getStatus().equals("available")){
+            if (!request.getText().toString().equals("")){
+                Location location = locateGPS();
+                if (check){
+                    clientDb.child(mClient.getUsername()).child("status").setValue("waiting");
+                    clientDb.child(mClient.getUsername()).child("request").setValue(request.getText().toString());
+                    clientDb.child(mClient.getUsername()).child("price").setValue(charge);
+                    LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+                    clientDb.child(mClient.getUsername()).child("lat").setValue(location.getLatitude()+"");
+                    clientDb.child(mClient.getUsername()).child("lng").setValue(location.getLongitude()+"");
+                    try {
+                        clientDb.child(mClient.getUsername()).child("address").setValue(locationName(latLng));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+            else {
+                Toast.makeText(MapsActivity.this,"Vui lòng nhập yêu cầu",Toast.LENGTH_LONG).show();
+            }
+        }
+        else{
+            clientDb.child(mClient.getUsername()).child("status").setValue("available");
+        }
+    }
+
     protected void getInfo(){
-        mDatabaseReference.child(mClient.getUsername()).addValueEventListener(new ValueEventListener() {
+        clientDb.child(mClient.getUsername()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
+                mClient = dataSnapshot.getValue(Client.class);
+                btnStatus();
+                if (check){
+                    if ( !mClient.getStatus().contains("waiting")
+                            && !mClient.getStatus().equals("busy")
+                            && !mClient.getStatus().equals("available")
+                    ){
+                        check = false;
+                        Intent intent = new Intent(MapsActivity.this, PairedActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+                btn_book.setOnClickListener(new View.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.M)
+                    @Override
+                    public void onClick(View v) {
+                        toggleBtn();
+                    }
+                });
             }
 
             @Override
