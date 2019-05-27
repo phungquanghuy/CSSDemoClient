@@ -22,11 +22,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-<<<<<<< HEAD
         android:layout_gravity="bottom"
-=======
-        android:orientation="vertical"
->>>>>>> origin/master
         android:layout_margin="16dp"
         android:background="@drawable/border_radius"
         android:orientation="vertical">
@@ -55,24 +51,13 @@
             android:id="@+id/btn_book"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
             android:layout_margin="16dp"
             android:background="@drawable/active_btn"
             android:stateListAnimator="@null"
             android:text="Đặt dịch vụ"
-            android:textColor="@android:color/white" />
-=======
-            android:layout_marginTop="15dp">
+            android:textColor="@android:color/white"
+            android:layout_marginTop="15dp"
+            tools:ignore="DuplicateIds"/>
 
-            <Button
-                android:id="@+id/btn_book"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/active_btn"
-                android:stateListAnimator="@null"
-                android:text="Đặt dịch vụ"
-                android:textColor="@android:color/white" />
         </LinearLayout>
->>>>>>> origin/master
-    </LinearLayout>
 </FrameLayout>

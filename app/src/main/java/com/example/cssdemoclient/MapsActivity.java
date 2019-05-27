@@ -19,10 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-<<<<<<< HEAD
 import android.widget.EditText;
-=======
->>>>>>> origin/master
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,7 +73,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mapFragment.getMapAsync(this);
 
-<<<<<<< HEAD
         btn_book = findViewById(R.id.btn_book);
         request = findViewById(R.id.request);
         price = findViewById(R.id.price);
@@ -84,17 +80,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         getInfo();
 
-=======
-        final Button bookButton = findViewById(R.id.btn_book);
-        bookButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bookButton.setBackgroundResource(R.drawable.offline_btn);
-                bookButton.setText("Hủy dịch vụ");
-                bookButton.setTextColor(0xFF000000);
-            }
-        });
->>>>>>> origin/master
     }
 
 
