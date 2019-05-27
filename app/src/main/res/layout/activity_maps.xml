@@ -55,6 +55,9 @@
             android:background="@drawable/active_btn"
             android:stateListAnimator="@null"
             android:text="Đặt dịch vụ"
-            android:textColor="@android:color/white" />
-    </LinearLayout>
+            android:textColor="@android:color/white"
+            android:layout_marginTop="15dp"
+            tools:ignore="DuplicateIds"/>
+
+        </LinearLayout>
 </FrameLayout>
